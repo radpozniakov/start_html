@@ -1,0 +1,14 @@
+@mixin fontMix($family-type, $size: 1rem, $weight : normal, $color :  black)
+  font:
+    family: $family-type
+    size: $size
+    weight: $weight
+  color: $color
+
+@mixin el($el)
+  &__#{$el}
+    @content
+
+@mixin mod($mod)
+  &--#{$mod}
+    @content
