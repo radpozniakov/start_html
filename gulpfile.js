@@ -4,7 +4,7 @@ var sass = require('gulp-sass');
 var pug = require('gulp-pug');
 var autoprefixer = require('gulp-autoprefixer');
 var del = require('del');
-var browserSync  = require('browser-sync');
+var browserSync = require('browser-sync').create();
 var cssnano = require('gulp-cssnano');
 var sourcemaps = require('gulp-sourcemaps');
 var notify = require('gulp-notify');
@@ -49,15 +49,27 @@ gulp.task('sass', function () {
         .pipe(cssnano({zindex: false}))
         .pipe(gulp.dest('./build/css/'))
         .pipe(browserSync.reload({stream: true}));
-
 });
-gulp.task('browser-sync', function() {
-    browserSync({
+gulp.task('serve', ['sass', 'pug'], function() {
+    browserSync.init({
         server:{
             baseDir: 'build'
         },
         notify: false
     });
+    gulp.watch('./dev/sass/**/*.sass', ['sass']);
+    gulp.watch('./dev/img/svg/*.svg', ['svg']);
+    gulp.watch('./dev/img/**/*.{png,jpg,gif}', ['img:dev']);
+    gulp.watch('./dev/pug/**/*.pug',  ['pug']);
+
+});
+gulp.task('img:dev', function(){
+    return gulp.src('./dev/img/**/*.{png,jpg,gif}')
+        .pipe(gulp.dest('./build/img/'));
+});
+gulp.task('fonts', function () {
+    return gulp.src('./dev/fonts/**/*.*')
+        .pipe(gulp.dest('./build/fonts/'));
 });
 gulp.task('svg', function () {
     return gulp.src('./dev/img/svg/*.svg')
@@ -87,8 +99,4 @@ gulp.task('svg', function () {
 gulp.task('clean', function () {
     return del(['./build']);
 });
-
-gulp.task('watch', ['browser-sync', 'sass', 'pug', 'svg'], function(){
-    gulp.watch('./dev/pug/**/*.pug',  ['pug']);
-    gulp.watch('./dev/sass/**/*.sass', ['sass']);
-});
+gulp.task('default', ['img:dev', 'fonts', 'serve']);
